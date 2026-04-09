@@ -11,6 +11,15 @@ type Range = 'today' | 'week' | 'month' | 'year'
 
 export default function Dashboard() {
   const [range, setRange] = useState<Range>('week')
+  const [hidden, setHidden] = useState<Set<string>>(new Set())
+
+  const toggleCategory = (name: string) => {
+    setHidden(prev => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name); else next.add(name)
+      return next
+    })
+  }
 
   const { from, to } = useMemo(() => {
     const now = new Date()
@@ -31,11 +40,19 @@ export default function Dashboard() {
     [from.getTime(), to.getTime()]
   )
 
+  // All categories present in the data (for filter toggles)
+  const allCategories = useMemo(() => {
+    if (!activities) return []
+    const seen = new Set<string>()
+    for (const a of activities) if (a.endTime) seen.add(a.category)
+    return CATEGORIES.filter(c => seen.has(c.name))
+  }, [activities])
+
   const categoryData = useMemo(() => {
     if (!activities) return []
     const map = new Map<string, number>()
     for (const a of activities) {
-      if (!a.endTime) continue
+      if (!a.endTime || hidden.has(a.category)) continue
       map.set(a.category, (map.get(a.category) ?? 0) + (a.endTime - a.startTime))
     }
     return Array.from(map.entries())
@@ -46,7 +63,7 @@ export default function Dashboard() {
         icon: CATEGORIES.find(c => c.name === name)?.icon ?? '📌',
       }))
       .sort((a, b) => b.value - a.value)
-  }, [activities])
+  }, [activities, hidden])
 
   const barData = useMemo(() => {
     if (!activities) return []
@@ -59,7 +76,7 @@ export default function Dashboard() {
       return d.toLocaleDateString([], { weekday: 'short', month: 'numeric', day: 'numeric' })
     }
     for (const a of activities) {
-      if (!a.endTime) continue
+      if (!a.endTime || hidden.has(a.category)) continue
       const key = getKey(new Date(a.startTime))
       if (!map.has(key)) map.set(key, new Map())
       map.get(key)!.set(a.category, (map.get(key)!.get(a.category) ?? 0) + (a.endTime - a.startTime))
@@ -69,7 +86,7 @@ export default function Dashboard() {
       for (const [cat, ms] of catMap) row[cat] = Math.round(ms / 60000)
       return row
     })
-  }, [activities, range])
+  }, [activities, range, hidden])
 
   const totalMs = categoryData.reduce((s, d) => s + d.value, 0)
   const uniqueCategories = categoryData.map((d) => d.name)
@@ -109,7 +126,7 @@ export default function Dashboard() {
       {/* Stats */}
       <div className="flex gap-3 mb-5">
         <div className="flex-1 rounded-lg px-3 py-2.5 text-center" style={{ backgroundColor: '#1e293b' }}>
-          <div className="text-lg font-bold">{activities?.filter(a => a.endTime).length ?? 0}</div>
+          <div className="text-lg font-bold">{activities?.filter(a => a.endTime && !hidden.has(a.category)).length ?? 0}</div>
           <div className="text-[10px] uppercase tracking-wide" style={{ color: '#64748b' }}>Activities</div>
         </div>
         <div className="flex-1 rounded-lg px-3 py-2.5 text-center" style={{ backgroundColor: '#1e293b' }}>
@@ -117,6 +134,31 @@ export default function Dashboard() {
           <div className="text-[10px] uppercase tracking-wide" style={{ color: '#64748b' }}>Total</div>
         </div>
       </div>
+
+      {/* Category filters */}
+      {allCategories.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          {allCategories.map((cat) => {
+            const isHidden = hidden.has(cat.name)
+            return (
+              <button
+                key={cat.name}
+                onClick={() => toggleCategory(cat.name)}
+                className="px-2.5 py-1 rounded-full text-xs font-medium transition-all active:scale-95"
+                style={{
+                  backgroundColor: isHidden ? '#1e293b' : cat.color + '22',
+                  color: isHidden ? '#475569' : cat.color,
+                  border: `1px solid ${isHidden ? '#334155' : cat.color + '44'}`,
+                  opacity: isHidden ? 0.5 : 1,
+                  textDecoration: isHidden ? 'line-through' : 'none',
+                }}
+              >
+                {cat.icon} {cat.name}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {categoryData.length === 0 ? (
         <div className="text-center py-20 text-sm" style={{ color: '#475569' }}>
