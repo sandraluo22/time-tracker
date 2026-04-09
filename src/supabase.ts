@@ -1,7 +1,8 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient, type RealtimeChannel } from '@supabase/supabase-js'
 import { db } from './db'
 
 let syncTimer: ReturnType<typeof setTimeout> | null = null
+let realtimeChannel: RealtimeChannel | null = null
 
 /** Debounced auto-sync: call after any write. Waits 2s then syncs. */
 export function triggerAutoSync() {
@@ -98,4 +99,56 @@ export async function syncToCloud(): Promise<{ pushed: number; pulled: number }>
 
   localStorage.setItem('tt_last_sync', Date.now().toString())
   return { pushed, pulled }
+}
+
+/** Subscribe to realtime changes — other tabs/devices push updates, we pull them in */
+export function subscribeToRealtime() {
+  const client = getSupabase()
+  if (!client) return
+
+  // Clean up existing subscription
+  if (realtimeChannel) {
+    client.removeChannel(realtimeChannel)
+    realtimeChannel = null
+  }
+
+  realtimeChannel = client
+    .channel('activities-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'activities' },
+      async (payload) => {
+        const row = payload.new as Record<string, any>
+        if (!row || !row.id) return
+
+        if (payload.eventType === 'DELETE') {
+          await db.activities.delete((payload.old as any).id)
+          return
+        }
+
+        // INSERT or UPDATE — apply if newer than local
+        const local = await db.activities.get(row.id)
+        if (!local || row.updated_at > local.updatedAt) {
+          await db.activities.put({
+            id: row.id,
+            label: row.label,
+            category: row.category,
+            startTime: row.start_time,
+            endTime: row.end_time,
+            updatedAt: row.updated_at,
+            synced: true,
+          })
+        }
+      }
+    )
+    .subscribe()
+}
+
+/** Unsubscribe from realtime */
+export function unsubscribeFromRealtime() {
+  const client = getSupabase()
+  if (client && realtimeChannel) {
+    client.removeChannel(realtimeChannel)
+    realtimeChannel = null
+  }
 }

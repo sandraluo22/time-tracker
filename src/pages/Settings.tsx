@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { getSupabaseConfig, setSupabaseConfig, clearSupabaseConfig, syncToCloud } from '../supabase'
+import { getSupabaseConfig, setSupabaseConfig, clearSupabaseConfig, syncToCloud, subscribeToRealtime, unsubscribeFromRealtime } from '../supabase'
 import { Cloud, CloudOff, RefreshCw, Trash2, Download, Upload } from 'lucide-react'
 import { db } from '../db'
 import { exportToCSV, downloadCSV, importFromCSV, importFromLegacy } from '../csv'
@@ -30,9 +30,11 @@ export default function Settings() {
     if (!url.trim() || !anonKey.trim()) return
     setSupabaseConfig(url.trim(), anonKey.trim())
     setConnected(true)
+    subscribeToRealtime()
   }
 
   const handleDisconnect = () => {
+    unsubscribeFromRealtime()
     clearSupabaseConfig()
     setConnected(false)
     setUrl('')
@@ -272,7 +274,11 @@ alter table activities enable row level security;
 create policy "allow all"
   on activities for all
   using (true)
-  with check (true);`}
+  with check (true);
+
+-- Enable realtime sync
+alter publication supabase_realtime
+  add table activities;`}
         </pre>
         <ol start={3} className="text-sm space-y-1 list-decimal list-inside mt-2" style={{ color: '#94a3b8' }}>
           <li>Copy URL and anon key from Settings &gt; API</li>

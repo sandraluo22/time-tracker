@@ -1,9 +1,11 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import { Timer as TimerIcon, CalendarDays, BarChart3, Settings as SettingsIcon } from 'lucide-react'
 import Timer from './pages/Timer'
 import Timeline from './pages/Timeline'
 import Dashboard from './pages/Dashboard'
 import Settings from './pages/Settings'
+import { getSupabaseConfig, subscribeToRealtime, syncToCloud } from './supabase'
 import './index.css'
 
 const navItems = [
@@ -14,6 +16,14 @@ const navItems = [
 ]
 
 export default function App() {
+  useEffect(() => {
+    if (getSupabaseConfig()) {
+      // Pull latest data and start listening for realtime changes
+      syncToCloud().catch(() => {})
+      subscribeToRealtime()
+    }
+  }, [])
+
   return (
     <BrowserRouter>
       <div className="flex flex-col h-full">
