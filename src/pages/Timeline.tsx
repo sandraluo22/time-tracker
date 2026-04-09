@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useActivitiesForDay, formatTime, formatDuration, formatDateShort } from '../hooks'
 import { updateActivity, deleteActivity, CATEGORIES, getCategoryColor } from '../db'
-import { ChevronLeft, ChevronRight, Pencil, Trash2, Check, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Pencil, Trash2, Check, X, LayoutList, BarChart3 } from 'lucide-react'
 
 function getCategoryIcon(category: string): string {
   return CATEGORIES.find((c) => c.name === category)?.icon ?? '📌'
@@ -12,6 +12,7 @@ export default function Timeline() {
   const activities = useActivitiesForDay(date)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({ label: '', category: '', startTime: '', endTime: '' })
+  const [view, setView] = useState<'cards' | 'list'>('cards')
 
   const prevDay = () => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d) }
   const nextDay = () => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d) }
@@ -74,28 +75,66 @@ export default function Timeline() {
         </div>
       )}
 
+      {/* View toggle */}
+      {activities.length > 0 && (
+        <div className="flex gap-1 mb-4 rounded-lg p-0.5" style={{ backgroundColor: '#1e293b' }}>
+          <button onClick={() => setView('cards')}
+            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md text-xs font-medium"
+            style={{ backgroundColor: view === 'cards' ? '#6366f1' : 'transparent', color: view === 'cards' ? 'white' : '#64748b' }}>
+            <BarChart3 size={12} /> Cards
+          </button>
+          <button onClick={() => setView('list')}
+            className="flex-1 flex items-center justify-center gap-1 py-1.5 rounded-md text-xs font-medium"
+            style={{ backgroundColor: view === 'list' ? '#6366f1' : 'transparent', color: view === 'list' ? 'white' : '#64748b' }}>
+            <LayoutList size={12} /> List
+          </button>
+        </div>
+      )}
+
       {/* Activities */}
       {activities.length === 0 ? (
         <div className="text-center py-20 text-sm" style={{ color: '#475569' }}>
           Nothing tracked yet
         </div>
+      ) : view === 'list' ? (
+        /* List view */
+        <div className="rounded-lg overflow-hidden" style={{ backgroundColor: '#1e293b' }}>
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{ borderBottom: '1px solid #334155' }}>
+                <th className="text-left px-3 py-2 text-[10px] font-medium uppercase tracking-wide" style={{ color: '#64748b' }}>Activity</th>
+                <th className="text-right px-3 py-2 text-[10px] font-medium uppercase tracking-wide" style={{ color: '#64748b' }}>Time</th>
+                <th className="text-right px-3 py-2 text-[10px] font-medium uppercase tracking-wide" style={{ color: '#64748b' }}>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {activities.map((a, i) => (
+                <tr key={a.id} style={{ borderBottom: i < activities.length - 1 ? '1px solid #334155' : undefined }} className="hover:bg-white/5">
+                  <td className="px-3 py-2 text-sm truncate max-w-[180px]">
+                    <span className="mr-1">{getCategoryIcon(a.category)}</span>{a.label}
+                  </td>
+                  <td className="px-3 py-2 text-right whitespace-nowrap text-xs" style={{ color: '#64748b' }}>
+                    {formatTime(a.startTime)}→{a.endTime ? formatTime(a.endTime) : 'now'}
+                  </td>
+                  <td className="px-3 py-2 text-right whitespace-nowrap font-mono text-xs">
+                    {a.endTime ? formatDuration(a.endTime - a.startTime) : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
+        /* Card view */
         <div className="space-y-2">
           {activities.map((a) => (
             <div key={a.id} className="rounded-lg p-3" style={{ backgroundColor: '#1e293b' }}>
               {editingId === a.id ? (
-                /* Edit mode */
                 <div className="space-y-2">
-                  <input
-                    value={editForm.label}
-                    onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
-                    className="w-full bg-transparent border-b border-white/10 text-white outline-none pb-1 text-sm"
-                  />
-                  <select
-                    value={editForm.category}
-                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                    className="text-sm rounded px-2 py-1 text-white outline-none" style={{ backgroundColor: '#334155' }}
-                  >
+                  <input value={editForm.label} onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
+                    className="w-full bg-transparent border-b border-white/10 text-white outline-none pb-1 text-sm" />
+                  <select value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    className="text-sm rounded px-2 py-1 text-white outline-none" style={{ backgroundColor: '#334155' }}>
                     {CATEGORIES.map((c) => <option key={c.name} value={c.name}>{c.icon} {c.name}</option>)}
                   </select>
                   <div className="flex gap-2 items-center text-sm">
@@ -111,7 +150,6 @@ export default function Timeline() {
                   </div>
                 </div>
               ) : (
-                /* Display */
                 <div className="flex items-center gap-3">
                   <div className="w-1 self-stretch rounded-full" style={{ backgroundColor: getCategoryColor(a.category) }} />
                   <div className="flex-1 min-w-0">
