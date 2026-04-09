@@ -150,13 +150,13 @@ export default function Dashboard() {
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-        <div className="rounded-lg px-3 py-2.5 text-center" style={{ backgroundColor: '#1e293b', minHeight: 56 }}>
-          <div className="text-lg font-bold tabular-nums">{activities?.filter(a => a.endTime && !hidden.has(a.category)).length ?? 0}</div>
-          <div className="text-[10px] uppercase tracking-wide" style={{ color: '#64748b' }}>Activities</div>
+        <div className="rounded-lg text-center overflow-hidden" style={{ backgroundColor: '#1e293b', padding: '10px 8px' }}>
+          <div style={{ fontSize: 18, fontWeight: 700, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{activities?.filter(a => a.endTime && !hidden.has(a.category)).length ?? 0}</div>
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Activities</div>
         </div>
-        <div className="rounded-lg px-3 py-2.5 text-center" style={{ backgroundColor: '#1e293b', minHeight: 56 }}>
-          <div className="text-lg font-bold tabular-nums">{formatDuration(totalMs)}</div>
-          <div className="text-[10px] uppercase tracking-wide" style={{ color: '#64748b' }}>Total</div>
+        <div className="rounded-lg text-center overflow-hidden" style={{ backgroundColor: '#1e293b', padding: '10px 8px' }}>
+          <div style={{ fontSize: 18, fontWeight: 700, fontVariantNumeric: 'tabular-nums', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{formatDuration(totalMs)}</div>
+          <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>Total</div>
         </div>
       </div>
 

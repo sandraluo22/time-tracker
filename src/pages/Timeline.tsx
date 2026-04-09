@@ -51,21 +51,21 @@ export default function Timeline() {
   const totalMs = activities.reduce((sum, a) => a.endTime ? sum + (a.endTime - a.startTime) : sum, 0)
 
   return (
-    <div className="px-4 py-5">
+    <div style={{ padding: '20px 16px', overflow: 'hidden' }}>
       {/* Date nav */}
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, maxWidth: '100%' }}>
         <button onClick={prevDay}
-          style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer' }}>
+          style={{ width: 40, minWidth: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer' }}>
           <ChevronLeft size={20} color="#94a3b8" />
         </button>
-        <div style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
-          <div className="text-base font-semibold">{formatDateShort(date)}</div>
-          <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>
+        <div style={{ flex: '1 1 0', textAlign: 'center', overflow: 'hidden' }}>
+          <div style={{ fontSize: 16, fontWeight: 600, whiteSpace: 'nowrap' }}>{formatDateShort(date)}</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginTop: 2, whiteSpace: 'nowrap' }}>
             {activities.length} activities · {formatDuration(totalMs)}
           </div>
         </div>
         <button onClick={nextDay} disabled={isToday}
-          style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer' }}>
+          style={{ width: 40, minWidth: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer' }}>
           <ChevronRight size={20} color={isToday ? '#334155' : '#94a3b8'} />
         </button>
       </div>
@@ -162,18 +162,18 @@ export default function Timeline() {
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center gap-3">
-                  <div className="w-1 self-stretch rounded-full" style={{ backgroundColor: getCategoryColor(a.category) }} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, overflow: 'hidden' }}>
+                  <div style={{ width: 4, alignSelf: 'stretch', borderRadius: 4, flexShrink: 0, backgroundColor: getCategoryColor(a.category) }} />
+                  <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {getCategoryIcon(a.category)} {a.label}
                     </div>
                     {a.description && (
-                      <div className="text-xs mt-0.5 truncate" style={{ color: '#94a3b8' }}>{a.description}</div>
+                      <div style={{ fontSize: 12, marginTop: 2, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.description}</div>
                     )}
-                    <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>
+                    <div style={{ fontSize: 12, marginTop: 2, color: '#64748b', whiteSpace: 'nowrap' }}>
                       {formatTime(a.startTime)} → {a.endTime ? formatTime(a.endTime) : 'now'}
-                      {a.endTime && <span className="ml-1.5">· {formatDuration(a.endTime - a.startTime)}</span>}
+                      {a.endTime && <span style={{ marginLeft: 6 }}>· {formatDuration(a.endTime - a.startTime)}</span>}
                     </div>
                   </div>
                   <div className="flex gap-1 shrink-0">
