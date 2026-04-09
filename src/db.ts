@@ -10,7 +10,6 @@ export interface Activity {
   endTime: number | null // null = running
   updatedAt: number
   synced: boolean
-  deleted?: boolean
 }
 
 export const CATEGORIES = [
@@ -83,8 +82,13 @@ export async function updateActivity(
 }
 
 export async function deleteActivity(id: string): Promise<void> {
-  await db.activities.update(id, { deleted: true, updatedAt: Date.now(), synced: false })
-  triggerAutoSync()
+  // Delete from Supabase first, then local
+  const { getSupabase } = await import('./supabase')
+  const client = getSupabase()
+  if (client) {
+    await client.from('activities').delete().eq('id', id)
+  }
+  await db.activities.delete(id)
 }
 
 export async function getActivitiesForDay(date: Date): Promise<Activity[]> {

@@ -64,7 +64,6 @@ export async function syncToCloud(): Promise<{ pushed: number; pulled: number }>
       start_time: activity.startTime,
       end_time: activity.endTime,
       updated_at: activity.updatedAt,
-      deleted: activity.deleted || false,
     }
     const { error } = await client.from('activities').upsert(row, { onConflict: 'id' })
     if (!error) {
@@ -93,7 +92,7 @@ export async function syncToCloud(): Promise<{ pushed: number; pulled: number }>
           startTime: row.start_time,
           endTime: row.end_time,
           updatedAt: row.updated_at,
-          deleted: row.deleted || false,
+
           synced: true,
         })
         pulled++
@@ -141,7 +140,7 @@ export function subscribeToRealtime() {
             startTime: row.start_time,
             endTime: row.end_time,
             updatedAt: row.updated_at,
-            deleted: row.deleted || false,
+  
             synced: true,
           })
         }

@@ -36,7 +36,7 @@ export default function Dashboard() {
   }, [range])
 
   const activities = useLiveQuery(
-    () => db.activities.where('startTime').between(from.getTime(), to.getTime(), true, true).filter((a) => !a.deleted).toArray(),
+    () => db.activities.where('startTime').between(from.getTime(), to.getTime(), true, true).toArray(),
     [from.getTime(), to.getTime()]
   )
 

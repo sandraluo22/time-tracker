@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 
 export function useRunningActivity() {
   const running = useLiveQuery(() =>
-    db.activities.filter((a) => a.endTime === null && !a.deleted).first()
+    db.activities.filter((a) => a.endTime === null).first()
   )
   return running ?? null
 }
@@ -20,7 +20,6 @@ export function useActivitiesForDay(date: Date) {
       db.activities
         .where('startTime')
         .between(start.getTime(), end.getTime(), true, true)
-        .filter((a) => !a.deleted)
         .sortBy('startTime'),
     [date.toDateString()]
   )
