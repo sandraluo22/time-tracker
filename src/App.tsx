@@ -18,7 +18,6 @@ const navItems = [
 export default function App() {
   useEffect(() => {
     if (getSupabaseConfig()) {
-      // Pull latest data and start listening for realtime changes
       syncToCloud().catch(() => {})
       subscribeToRealtime()
     }
@@ -27,42 +26,42 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="flex flex-col h-full">
-        {/* Safe area top spacer */}
         <div className="safe-top shrink-0" style={{ backgroundColor: '#0f172a' }} />
 
-        {/* Scrollable content area */}
         <div className="page-scroll">
-          <Routes>
-            <Route path="/" element={<Timer />} />
-            <Route path="/timeline" element={<Timeline />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
+          <div className="max-w-2xl mx-auto w-full">
+            <Routes>
+              <Route path="/" element={<Timer />} />
+              <Route path="/timeline" element={<Timeline />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </div>
         </div>
 
-        {/* Bottom navigation */}
         <nav
-          className="shrink-0 flex justify-around items-center pt-2"
+          className="shrink-0 border-t border-white/5"
           style={{
             backgroundColor: '#1e293b',
-            borderTop: '1px solid #334155',
             paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
           }}
         >
-          {navItems.map(({ to, icon: Icon, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === '/'}
-              className="flex flex-col items-center gap-0.5 px-4 py-1"
-              style={({ isActive }) => ({
-                color: isActive ? '#818cf8' : '#64748b',
-              })}
-            >
-              <Icon size={22} />
-              <span className="text-[10px] font-medium">{label}</span>
-            </NavLink>
-          ))}
+          <div className="max-w-2xl mx-auto flex justify-around items-center pt-2">
+            {navItems.map(({ to, icon: Icon, label }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === '/'}
+                className="flex flex-col items-center gap-0.5 px-4 py-1"
+                style={({ isActive }) => ({
+                  color: isActive ? '#818cf8' : '#64748b',
+                })}
+              >
+                <Icon size={20} />
+                <span className="text-[10px] font-medium">{label}</span>
+              </NavLink>
+            ))}
+          </div>
         </nav>
       </div>
     </BrowserRouter>

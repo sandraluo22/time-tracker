@@ -10,8 +10,7 @@ export default function Timer() {
   const [category, setCategory] = useState('Sleep')
 
   const handleStart = async () => {
-    const activityLabel = label.trim() || category
-    await startActivity(activityLabel, category)
+    await startActivity(label.trim() || category, category)
     setLabel('')
   }
 
@@ -20,92 +19,73 @@ export default function Timer() {
   }
 
   const runningCat = CATEGORIES.find(c => c.name === running?.category)
+  const selectedCat = CATEGORIES.find(c => c.name === category)
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 px-4 pb-4">
-      {/* Duration display */}
+    <div className="flex flex-col items-center justify-center flex-1 px-5 py-8">
+      {/* Timer */}
       <div
-        className="font-mono font-light tracking-tight mb-6"
-        style={{
-          fontSize: running ? '5rem' : '4.5rem',
-          color: running ? '#22c55e' : '#334155',
-        }}
+        className="font-mono font-extralight tracking-tight mb-6 tabular-nums"
+        style={{ fontSize: 'clamp(3.5rem, 15vw, 5rem)', color: running ? '#22c55e' : '#334155' }}
       >
         {formatDuration(elapsed)}
       </div>
 
       {running ? (
         <>
-          <div className="text-2xl mb-1 font-medium flex items-center gap-2">
-            <span>{runningCat?.icon}</span>
-            <span>{running.label}</span>
+          <div className="text-lg mb-1 font-medium">
+            {runningCat?.icon} {running.label}
           </div>
-          <div
-            className="text-sm px-4 py-1 rounded-full mb-10"
-            style={{
-              backgroundColor: (runningCat?.color ?? '#64748b') + '22',
-              color: runningCat?.color ?? '#64748b',
-            }}
-          >
+          <div className="text-xs px-3 py-1 rounded-full mb-8"
+            style={{ backgroundColor: (runningCat?.color ?? '#64748b') + '18', color: runningCat?.color }}>
             {running.category}
           </div>
-          <button
-            onClick={handleStop}
-            className="w-32 h-32 rounded-full flex items-center justify-center transition-transform active:scale-90 shadow-xl"
-            style={{ backgroundColor: '#ef4444' }}
-          >
-            <Square size={44} fill="white" color="white" />
+          <button onClick={handleStop}
+            className="w-28 h-28 rounded-full flex items-center justify-center active:scale-90 transition-transform shadow-lg shadow-red-500/20"
+            style={{ backgroundColor: '#ef4444' }}>
+            <Square size={38} fill="white" color="white" />
           </button>
-          <div className="text-sm mt-5 font-medium" style={{ color: '#94a3b8' }}>
-            Tap to stop
-          </div>
+          <div className="text-xs mt-4" style={{ color: '#475569' }}>Tap to stop</div>
         </>
       ) : (
         <>
-          {/* Label input */}
           <input
             type="text"
             placeholder="What are you doing?"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleStart()}
-            className="w-full max-w-xs text-center text-lg bg-transparent border-b-2 pb-2 mb-8 text-white outline-none transition-colors"
-            style={{ borderColor: CATEGORIES.find(c => c.name === category)?.color ?? '#475569' }}
+            className="w-full max-w-[280px] text-center text-base bg-transparent border-b-2 pb-2 mb-7 text-white outline-none transition-colors placeholder-gray-600"
+            style={{ borderColor: selectedCat?.color ?? '#334155' }}
           />
 
-          {/* Category picker */}
-          <div className="grid grid-cols-3 gap-3 mb-10 w-full max-w-xs">
+          <div className="grid grid-cols-3 gap-2 mb-8 w-full max-w-[280px]">
             {CATEGORIES.map((cat) => {
-              const selected = category === cat.name
+              const sel = category === cat.name
               return (
                 <button
                   key={cat.name}
                   onClick={() => setCategory(cat.name)}
-                  className="flex flex-col items-center gap-1 py-3 rounded-xl text-sm font-medium transition-all active:scale-95"
+                  className="flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-medium transition-all active:scale-95"
                   style={{
-                    backgroundColor: selected ? cat.color + '33' : '#1e293b',
-                    color: selected ? cat.color : '#94a3b8',
-                    border: `2px solid ${selected ? cat.color : 'transparent'}`,
+                    backgroundColor: sel ? cat.color + '22' : '#1e293b',
+                    color: sel ? cat.color : '#64748b',
+                    border: `1.5px solid ${sel ? cat.color + '66' : 'transparent'}`,
                   }}
                 >
-                  <span className="text-xl">{cat.icon}</span>
+                  <span className="text-lg">{cat.icon}</span>
                   <span>{cat.name}</span>
                 </button>
               )
             })}
           </div>
 
-          {/* Start button */}
-          <button
-            onClick={handleStart}
-            className="w-32 h-32 rounded-full flex items-center justify-center transition-transform active:scale-90 shadow-xl"
-            style={{ backgroundColor: CATEGORIES.find(c => c.name === category)?.color ?? '#6366f1' }}
-          >
-            <Play size={48} fill="white" color="white" className="ml-1" />
+          <button onClick={handleStart}
+            className="w-28 h-28 rounded-full flex items-center justify-center active:scale-90 transition-transform shadow-lg"
+            style={{ backgroundColor: selectedCat?.color ?? '#6366f1', boxShadow: `0 8px 30px ${selectedCat?.color ?? '#6366f1'}33` }}>
+            <Play size={42} fill="white" color="white" className="ml-1" />
           </button>
-          <div className="text-sm mt-5 font-medium" style={{ color: '#94a3b8' }}>
-            Tap to start
-          </div>
+          <div className="text-xs mt-4" style={{ color: '#475569' }}>Tap to start</div>
         </>
       )}
     </div>
