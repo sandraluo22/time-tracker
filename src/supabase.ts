@@ -59,6 +59,7 @@ export async function syncToCloud(): Promise<{ pushed: number; pulled: number }>
     const row = {
       id: activity.id,
       label: activity.label,
+      description: activity.description || null,
       category: activity.category,
       start_time: activity.startTime,
       end_time: activity.endTime,
@@ -86,6 +87,7 @@ export async function syncToCloud(): Promise<{ pushed: number; pulled: number }>
         await db.activities.put({
           id: row.id,
           label: row.label,
+          description: row.description || undefined,
           category: row.category,
           startTime: row.start_time,
           endTime: row.end_time,
@@ -132,6 +134,7 @@ export function subscribeToRealtime() {
           await db.activities.put({
             id: row.id,
             label: row.label,
+            description: row.description || undefined,
             category: row.category,
             startTime: row.start_time,
             endTime: row.end_time,

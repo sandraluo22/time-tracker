@@ -4,6 +4,7 @@ import { triggerAutoSync } from './supabase'
 export interface Activity {
   id?: string
   label: string
+  description?: string
   category: string
   startTime: number // unix ms
   endTime: number | null // null = running
@@ -31,6 +32,9 @@ class TrackerDB extends Dexie {
   constructor() {
     super('TimeTrackerDB')
     this.version(1).stores({
+      activities: 'id, label, category, startTime, endTime, updatedAt, synced',
+    })
+    this.version(2).stores({
       activities: 'id, label, category, startTime, endTime, updatedAt, synced',
     })
   }

@@ -110,8 +110,9 @@ export default function Timeline() {
             <tbody>
               {activities.map((a, i) => (
                 <tr key={a.id} style={{ borderBottom: i < activities.length - 1 ? '1px solid #334155' : undefined }} className="hover:bg-white/5">
-                  <td className="px-3 py-2 text-sm truncate max-w-[180px]">
-                    <span className="mr-1">{getCategoryIcon(a.category)}</span>{a.label}
+                  <td className="px-3 py-2 max-w-[200px]">
+                    <div className="text-sm truncate"><span className="mr-1">{getCategoryIcon(a.category)}</span>{a.label}</div>
+                    {a.description && <div className="text-[11px] truncate" style={{ color: '#94a3b8' }}>{a.description}</div>}
                   </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap text-xs" style={{ color: '#64748b' }}>
                     {formatTime(a.startTime)}→{a.endTime ? formatTime(a.endTime) : 'now'}
@@ -156,6 +157,9 @@ export default function Timeline() {
                     <div className="text-sm font-medium truncate">
                       {getCategoryIcon(a.category)} {a.label}
                     </div>
+                    {a.description && (
+                      <div className="text-xs mt-0.5 truncate" style={{ color: '#94a3b8' }}>{a.description}</div>
+                    )}
                     <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>
                       {formatTime(a.startTime)} → {a.endTime ? formatTime(a.endTime) : 'now'}
                       {a.endTime && <span className="ml-1.5">· {formatDuration(a.endTime - a.startTime)}</span>}

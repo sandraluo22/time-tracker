@@ -172,17 +172,15 @@ export async function importFromLegacy(
 
       for (const [mealName, timeRange, desc] of meals) {
         if (!timeRange && !desc) continue
-        const label = desc || mealName
         const times = parseTimeRange(timeRange, baseDate)
         if (times) {
-          await addLegacyActivity(label, 'Other', times.start, times.end, now)
+          await addLegacyActivity(mealName, mealName, times.start, times.end, now, desc)
           added++
         } else if (desc) {
-          // Has description but no time — create a 30min placeholder at noon-ish
           const placeholder = new Date(baseDate)
           const hour = mealName === 'Breakfast' ? 9 : mealName === 'Lunch' ? 13 : mealName === 'Dinner' ? 19 : 15
           placeholder.setHours(hour, 0, 0, 0)
-          await addLegacyActivity(label, 'Other', placeholder.getTime(), placeholder.getTime() + 30 * 60000, now)
+          await addLegacyActivity(mealName, mealName, placeholder.getTime(), placeholder.getTime() + 30 * 60000, now, desc)
           added++
         }
       }
@@ -199,11 +197,13 @@ async function addLegacyActivity(
   category: string,
   startTime: number,
   endTime: number,
-  now: number
+  now: number,
+  description?: string
 ) {
   await db.activities.add({
     id: generateId(),
     label,
+    description: description || undefined,
     category,
     startTime,
     endTime,
