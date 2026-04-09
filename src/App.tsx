@@ -28,8 +28,8 @@ export default function App() {
       <div className="flex flex-col h-full">
         <div className="safe-top shrink-0" style={{ backgroundColor: '#0f172a' }} />
 
-        <div className="page-scroll">
-          <div className="max-w-2xl mx-auto w-full">
+        <div className="page-scroll flex flex-col">
+          <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col">
             <Routes>
               <Route path="/" element={<Timer />} />
               <Route path="/timeline" element={<Timeline />} />

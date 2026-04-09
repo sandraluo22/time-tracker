@@ -22,11 +22,11 @@ export default function Timer() {
   const selectedCat = CATEGORIES.find(c => c.name === category)
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 px-5 py-8">
-      {/* Timer */}
+    <div className="flex-1 flex flex-col items-center justify-center px-5 py-8">
+      {/* Timer display */}
       <div
-        className="font-mono font-extralight tracking-tight mb-6 tabular-nums"
-        style={{ fontSize: 'clamp(3.5rem, 15vw, 5rem)', color: running ? '#22c55e' : '#334155' }}
+        className="font-mono font-extralight tracking-tight mb-6 tabular-nums select-none"
+        style={{ fontSize: 'clamp(3.5rem, 12vw, 5.5rem)', color: running ? '#22c55e' : '#334155' }}
       >
         {formatDuration(elapsed)}
       </div>
@@ -49,24 +49,26 @@ export default function Timer() {
         </>
       ) : (
         <>
+          {/* Label input */}
           <input
             type="text"
             placeholder="What are you doing?"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleStart()}
-            className="w-full max-w-[280px] text-center text-base bg-transparent border-b-2 pb-2 mb-7 text-white outline-none transition-colors placeholder-gray-600"
+            className="w-full max-w-sm text-center text-base bg-transparent border-b-2 pb-2 mb-7 text-white outline-none transition-colors placeholder-gray-600"
             style={{ borderColor: selectedCat?.color ?? '#334155' }}
           />
 
-          <div className="flex flex-wrap justify-center gap-2 mb-8 w-full max-w-[320px]">
+          {/* Category grid — 4 columns on desktop, 3 on mobile */}
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-8 w-full max-w-sm">
             {CATEGORIES.map((cat) => {
               const sel = category === cat.name
               return (
                 <button
                   key={cat.name}
                   onClick={() => setCategory(cat.name)}
-                  className="flex flex-col items-center gap-0.5 py-2.5 w-[90px] rounded-lg text-xs font-medium transition-all active:scale-95"
+                  className="flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-medium transition-all active:scale-95"
                   style={{
                     backgroundColor: sel ? cat.color + '22' : '#1e293b',
                     color: sel ? cat.color : '#64748b',
@@ -80,6 +82,7 @@ export default function Timer() {
             })}
           </div>
 
+          {/* Start button */}
           <button onClick={handleStart}
             className="w-28 h-28 rounded-full flex items-center justify-center active:scale-90 transition-transform shadow-lg"
             style={{ backgroundColor: selectedCat?.color ?? '#6366f1', boxShadow: `0 8px 30px ${selectedCat?.color ?? '#6366f1'}33` }}>
