@@ -1,4 +1,5 @@
 import Dexie, { type Table } from 'dexie'
+import { triggerAutoSync } from './supabase'
 
 export interface Activity {
   id?: string
@@ -11,14 +12,12 @@ export interface Activity {
 }
 
 export const CATEGORIES = [
-  { name: 'Work', color: '#6366f1' },
-  { name: 'Study', color: '#f59e0b' },
-  { name: 'Exercise', color: '#22c55e' },
-  { name: 'Leisure', color: '#ec4899' },
-  { name: 'Social', color: '#14b8a6' },
-  { name: 'Chores', color: '#f97316' },
-  { name: 'Sleep', color: '#8b5cf6' },
-  { name: 'Other', color: '#64748b' },
+  { name: 'Sleep', color: '#8b5cf6', icon: '🌙' },
+  { name: 'Breakfast', color: '#f59e0b', icon: '🥐' },
+  { name: 'Lunch', color: '#22c55e', icon: '🥗' },
+  { name: 'Dinner', color: '#ef4444', icon: '🍽️' },
+  { name: 'Snacks', color: '#ec4899', icon: '🍪' },
+  { name: 'Other', color: '#64748b', icon: '📌' },
 ]
 
 export function getCategoryColor(category: string): string {
@@ -54,12 +53,14 @@ export async function startActivity(label: string, category: string): Promise<st
     updatedAt: now,
     synced: false,
   })
+  triggerAutoSync()
   return id
 }
 
 export async function stopActivity(id: string): Promise<void> {
   const now = Date.now()
   await db.activities.update(id, { endTime: now, updatedAt: now, synced: false })
+  triggerAutoSync()
 }
 
 export async function getRunningActivity(): Promise<Activity | undefined> {
@@ -72,10 +73,12 @@ export async function updateActivity(
   updates: Partial<Pick<Activity, 'label' | 'category' | 'startTime' | 'endTime'>>
 ): Promise<void> {
   await db.activities.update(id, { ...updates, updatedAt: Date.now(), synced: false })
+  triggerAutoSync()
 }
 
 export async function deleteActivity(id: string): Promise<void> {
   await db.activities.delete(id)
+  triggerAutoSync()
 }
 
 export async function getActivitiesForDay(date: Date): Promise<Activity[]> {

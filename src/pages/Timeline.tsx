@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useActivitiesForDay, formatTime, formatDuration, formatDateShort } from '../hooks'
 import { updateActivity, deleteActivity, CATEGORIES, getCategoryColor } from '../db'
+
+function getCategoryIcon(category: string): string {
+  return CATEGORIES.find((c) => c.name === category)?.icon ?? '📌'
+}
 import { ChevronLeft, ChevronRight, Pencil, Trash2, Check, X, LayoutList, BarChart3 } from 'lucide-react'
 
 export default function Timeline() {
@@ -139,7 +143,10 @@ export default function Timeline() {
                   style={{ borderBottom: i < activities.length - 1 ? '1px solid #334155' : undefined }}
                   className="hover:bg-white/5"
                 >
-                  <td className="px-3 py-2 truncate max-w-[120px]">{a.label}</td>
+                  <td className="px-3 py-2 truncate max-w-[120px]">
+                    <span className="mr-1">{getCategoryIcon(a.category)}</span>
+                    {a.label}
+                  </td>
                   <td className="px-3 py-2">
                     <span
                       className="text-xs px-2 py-0.5 rounded-full"
@@ -207,7 +214,10 @@ export default function Timeline() {
               ) : (
                 <div className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm truncate">{a.label}</div>
+                    <div className="font-medium text-sm truncate">
+                      <span className="mr-1">{getCategoryIcon(a.category)}</span>
+                      {a.label}
+                    </div>
                     <div className="text-xs" style={{ color: '#94a3b8' }}>
                       {formatTime(a.startTime)} - {a.endTime ? formatTime(a.endTime) : 'running'}
                       {a.endTime && <span className="ml-2">&middot; {formatDuration(a.endTime - a.startTime)}</span>}

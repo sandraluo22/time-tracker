@@ -1,6 +1,16 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { db } from './db'
 
+let syncTimer: ReturnType<typeof setTimeout> | null = null
+
+/** Debounced auto-sync: call after any write. Waits 2s then syncs. */
+export function triggerAutoSync() {
+  if (syncTimer) clearTimeout(syncTimer)
+  syncTimer = setTimeout(() => {
+    syncToCloud().catch(() => {})
+  }, 2000)
+}
+
 let supabase: SupabaseClient | null = null
 
 const SUPABASE_URL_KEY = 'tt_supabase_url'

@@ -7,7 +7,7 @@ export default function Timer() {
   const running = useRunningActivity()
   const elapsed = useElapsed(running?.startTime ?? null)
   const [label, setLabel] = useState('')
-  const [category, setCategory] = useState('Work')
+  const [category, setCategory] = useState('Sleep')
 
   const handleStart = async () => {
     const activityLabel = label.trim() || category
@@ -19,34 +19,48 @@ export default function Timer() {
     if (running?.id) await stopActivity(running.id)
   }
 
+  const runningCat = CATEGORIES.find(c => c.name === running?.category)
+
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-4 pb-24">
       {/* Duration display */}
-      <div className="text-7xl font-mono font-light tracking-tight mb-8" style={{ color: running ? '#22c55e' : '#94a3b8' }}>
+      <div
+        className="font-mono font-light tracking-tight mb-6"
+        style={{
+          fontSize: running ? '5rem' : '4.5rem',
+          color: running ? '#22c55e' : '#334155',
+        }}
+      >
         {formatDuration(elapsed)}
       </div>
 
       {running ? (
-        /* Running state */
         <>
-          <div className="text-xl mb-2 font-medium">{running.label}</div>
+          <div className="text-2xl mb-1 font-medium flex items-center gap-2">
+            <span>{runningCat?.icon}</span>
+            <span>{running.label}</span>
+          </div>
           <div
-            className="text-sm px-3 py-1 rounded-full mb-10"
-            style={{ backgroundColor: CATEGORIES.find(c => c.name === running.category)?.color + '33', color: CATEGORIES.find(c => c.name === running.category)?.color }}
+            className="text-sm px-4 py-1 rounded-full mb-10"
+            style={{
+              backgroundColor: (runningCat?.color ?? '#64748b') + '22',
+              color: runningCat?.color ?? '#64748b',
+            }}
           >
             {running.category}
           </div>
           <button
             onClick={handleStop}
-            className="w-28 h-28 rounded-full flex items-center justify-center transition-transform active:scale-95"
+            className="w-32 h-32 rounded-full flex items-center justify-center transition-transform active:scale-90 shadow-xl"
             style={{ backgroundColor: '#ef4444' }}
           >
-            <Square size={40} fill="white" color="white" />
+            <Square size={44} fill="white" color="white" />
           </button>
-          <div className="text-sm mt-4" style={{ color: '#94a3b8' }}>Tap to stop</div>
+          <div className="text-sm mt-5 font-medium" style={{ color: '#94a3b8' }}>
+            Tap to stop
+          </div>
         </>
       ) : (
-        /* Idle state */
         <>
           {/* Label input */}
           <input
@@ -55,36 +69,43 @@ export default function Timer() {
             value={label}
             onChange={(e) => setLabel(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleStart()}
-            className="w-full max-w-xs text-center text-lg bg-transparent border-b-2 border-gray-600 focus:border-indigo-400 outline-none pb-2 mb-6 text-white placeholder-gray-500"
+            className="w-full max-w-xs text-center text-lg bg-transparent border-b-2 pb-2 mb-8 text-white outline-none transition-colors"
+            style={{ borderColor: CATEGORIES.find(c => c.name === category)?.color ?? '#475569' }}
           />
 
           {/* Category picker */}
-          <div className="flex flex-wrap justify-center gap-2 mb-10 max-w-sm">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.name}
-                onClick={() => setCategory(cat.name)}
-                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all"
-                style={{
-                  backgroundColor: category === cat.name ? cat.color + 'cc' : cat.color + '22',
-                  color: category === cat.name ? 'white' : cat.color,
-                  border: `1px solid ${cat.color}44`,
-                }}
-              >
-                {cat.name}
-              </button>
-            ))}
+          <div className="grid grid-cols-3 gap-3 mb-10 w-full max-w-xs">
+            {CATEGORIES.map((cat) => {
+              const selected = category === cat.name
+              return (
+                <button
+                  key={cat.name}
+                  onClick={() => setCategory(cat.name)}
+                  className="flex flex-col items-center gap-1 py-3 rounded-xl text-sm font-medium transition-all active:scale-95"
+                  style={{
+                    backgroundColor: selected ? cat.color + '33' : '#1e293b',
+                    color: selected ? cat.color : '#94a3b8',
+                    border: `2px solid ${selected ? cat.color : 'transparent'}`,
+                  }}
+                >
+                  <span className="text-xl">{cat.icon}</span>
+                  <span>{cat.name}</span>
+                </button>
+              )
+            })}
           </div>
 
           {/* Start button */}
           <button
             onClick={handleStart}
-            className="w-28 h-28 rounded-full flex items-center justify-center transition-transform active:scale-95 shadow-lg"
-            style={{ backgroundColor: '#6366f1' }}
+            className="w-32 h-32 rounded-full flex items-center justify-center transition-transform active:scale-90 shadow-xl"
+            style={{ backgroundColor: CATEGORIES.find(c => c.name === category)?.color ?? '#6366f1' }}
           >
-            <Play size={44} fill="white" color="white" className="ml-1" />
+            <Play size={48} fill="white" color="white" className="ml-1" />
           </button>
-          <div className="text-sm mt-4" style={{ color: '#94a3b8' }}>Tap to start</div>
+          <div className="text-sm mt-5 font-medium" style={{ color: '#94a3b8' }}>
+            Tap to start
+          </div>
         </>
       )}
     </div>
