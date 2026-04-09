@@ -18,7 +18,10 @@ export const CATEGORIES = [
   { name: 'Lunch', color: '#22c55e', icon: '🥗' },
   { name: 'Dinner', color: '#ef4444', icon: '🍽️' },
   { name: 'Snacks', color: '#ec4899', icon: '🍪' },
-  { name: 'Transporting', color: '#14b8a6', icon: '🚶' },
+  { name: 'Walking', color: '#14b8a6', icon: '🚶' },
+  { name: 'Study', color: '#6366f1', icon: '📚' },
+  { name: 'Exercise', color: '#f97316', icon: '💪' },
+  { name: 'Research', color: '#0ea5e9', icon: '🔬' },
   { name: 'Other', color: '#64748b', icon: '📌' },
 ]
 
