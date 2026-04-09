@@ -106,7 +106,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex-1 px-4 pb-24 pt-4">
+    <div className="flex-1 px-4 pb-4 pt-4">
       {/* Range picker */}
       <div className="flex gap-2 mb-6 justify-center">
         {(['today', 'week', 'month', 'year'] as Range[]).map((r) => (

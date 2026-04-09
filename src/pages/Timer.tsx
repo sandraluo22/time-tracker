@@ -22,7 +22,7 @@ export default function Timer() {
   const runningCat = CATEGORIES.find(c => c.name === running?.category)
 
   return (
-    <div className="flex flex-col items-center justify-center flex-1 px-4 pb-24">
+    <div className="flex flex-col items-center justify-center flex-1 px-4 pb-4">
       {/* Duration display */}
       <div
         className="font-mono font-light tracking-tight mb-6"

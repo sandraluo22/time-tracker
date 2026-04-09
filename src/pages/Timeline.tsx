@@ -65,7 +65,7 @@ export default function Timeline() {
   }, 0)
 
   return (
-    <div className="flex-1 px-4 pb-24 pt-4">
+    <div className="flex-1 px-4 pb-4 pt-4">
       {/* Date nav */}
       <div className="flex items-center justify-between mb-6">
         <button onClick={prevDay} className="p-2 rounded-lg" style={{ backgroundColor: '#1e293b' }}>

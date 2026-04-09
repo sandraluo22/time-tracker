@@ -58,7 +58,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="flex-1 px-4 pb-24 pt-4">
+    <div className="flex-1 px-4 pb-4 pt-4">
       <h2 className="text-xl font-semibold mb-6">Settings</h2>
 
       {/* Supabase config */}
