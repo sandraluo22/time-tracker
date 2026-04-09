@@ -149,13 +149,13 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="flex gap-3 mb-5">
-        <div className="flex-1 rounded-lg px-3 py-2.5 text-center" style={{ backgroundColor: '#1e293b' }}>
-          <div className="text-lg font-bold">{activities?.filter(a => a.endTime && !hidden.has(a.category)).length ?? 0}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+        <div className="rounded-lg px-3 py-2.5 text-center" style={{ backgroundColor: '#1e293b', minHeight: 56 }}>
+          <div className="text-lg font-bold tabular-nums">{activities?.filter(a => a.endTime && !hidden.has(a.category)).length ?? 0}</div>
           <div className="text-[10px] uppercase tracking-wide" style={{ color: '#64748b' }}>Activities</div>
         </div>
-        <div className="flex-1 rounded-lg px-3 py-2.5 text-center" style={{ backgroundColor: '#1e293b' }}>
-          <div className="text-lg font-bold">{formatDuration(totalMs)}</div>
+        <div className="rounded-lg px-3 py-2.5 text-center" style={{ backgroundColor: '#1e293b', minHeight: 56 }}>
+          <div className="text-lg font-bold tabular-nums">{formatDuration(totalMs)}</div>
           <div className="text-[10px] uppercase tracking-wide" style={{ color: '#64748b' }}>Total</div>
         </div>
       </div>

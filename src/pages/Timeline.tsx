@@ -53,17 +53,19 @@ export default function Timeline() {
   return (
     <div className="px-4 py-5">
       {/* Date nav */}
-      <div className="flex items-center mb-5">
-        <button onClick={prevDay} className="w-10 h-10 shrink-0 flex items-center justify-center rounded-lg hover:bg-white/5 active:bg-white/10">
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
+        <button onClick={prevDay}
+          style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer' }}>
           <ChevronLeft size={20} color="#94a3b8" />
         </button>
-        <div className="flex-1 text-center">
+        <div style={{ flex: 1, textAlign: 'center', minWidth: 0 }}>
           <div className="text-base font-semibold">{formatDateShort(date)}</div>
           <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>
             {activities.length} activities · {formatDuration(totalMs)}
           </div>
         </div>
-        <button onClick={nextDay} className="w-10 h-10 shrink-0 flex items-center justify-center rounded-lg hover:bg-white/5 active:bg-white/10" disabled={isToday}>
+        <button onClick={nextDay} disabled={isToday}
+          style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, background: 'none', border: 'none', cursor: 'pointer' }}>
           <ChevronRight size={20} color={isToday ? '#334155' : '#94a3b8'} />
         </button>
       </div>
