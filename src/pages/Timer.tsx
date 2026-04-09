@@ -59,14 +59,14 @@ export default function Timer() {
             style={{ borderColor: selectedCat?.color ?? '#334155' }}
           />
 
-          <div className="grid grid-cols-3 gap-2 mb-8 w-full max-w-[280px]">
+          <div className="flex flex-wrap justify-center gap-2 mb-8 w-full max-w-[320px]">
             {CATEGORIES.map((cat) => {
               const sel = category === cat.name
               return (
                 <button
                   key={cat.name}
                   onClick={() => setCategory(cat.name)}
-                  className="flex flex-col items-center gap-0.5 py-2.5 rounded-lg text-xs font-medium transition-all active:scale-95"
+                  className="flex flex-col items-center gap-0.5 py-2.5 w-[90px] rounded-lg text-xs font-medium transition-all active:scale-95"
                   style={{
                     backgroundColor: sel ? cat.color + '22' : '#1e293b',
                     color: sel ? cat.color : '#64748b',

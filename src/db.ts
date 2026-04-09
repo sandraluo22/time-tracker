@@ -17,6 +17,7 @@ export const CATEGORIES = [
   { name: 'Lunch', color: '#22c55e', icon: '🥗' },
   { name: 'Dinner', color: '#ef4444', icon: '🍽️' },
   { name: 'Snacks', color: '#ec4899', icon: '🍪' },
+  { name: 'Transporting', color: '#14b8a6', icon: '🚶' },
   { name: 'Other', color: '#64748b', icon: '📌' },
 ]
 
