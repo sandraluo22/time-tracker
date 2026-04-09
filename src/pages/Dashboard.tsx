@@ -56,8 +56,11 @@ export default function Dashboard() {
     if (!activities) return []
     const seen = new Set<string>()
     for (const a of activities) if (a.endTime) seen.add(a.category)
-    return CATEGORIES.filter(c => seen.has(c.name) && c.name !== 'Other')
+    return CATEGORIES.filter(c => seen.has(c.name))
   }, [activities])
+
+  const showAll = () => setHidden(new Set())
+  const hideAll = () => setHidden(new Set(allCategories.map(c => c.name)))
 
   const categoryData = useMemo(() => {
     if (!activities) return []
@@ -159,26 +162,38 @@ export default function Dashboard() {
 
       {/* Category filters */}
       {allCategories.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-5">
-          {allCategories.map((cat) => {
-            const isHidden = hidden.has(cat.name)
-            return (
-              <button
-                key={cat.name}
-                onClick={() => toggleCategory(cat.name)}
-                className="px-2.5 py-1 rounded-full text-xs font-medium transition-all active:scale-95"
-                style={{
-                  backgroundColor: isHidden ? '#1e293b' : cat.color + '22',
-                  color: isHidden ? '#475569' : cat.color,
-                  border: `1px solid ${isHidden ? '#334155' : cat.color + '44'}`,
-                  opacity: isHidden ? 0.5 : 1,
-                  textDecoration: isHidden ? 'line-through' : 'none',
-                }}
-              >
-                {cat.icon} {cat.name}
-              </button>
-            )
-          })}
+        <div className="mb-5">
+          <div className="flex gap-1.5 mb-2">
+            <button onClick={showAll} className="px-2 py-0.5 rounded text-[10px] font-medium"
+              style={{ backgroundColor: hidden.size === 0 ? '#6366f1' : '#1e293b', color: hidden.size === 0 ? 'white' : '#64748b' }}>
+              All
+            </button>
+            <button onClick={hideAll} className="px-2 py-0.5 rounded text-[10px] font-medium"
+              style={{ backgroundColor: hidden.size === allCategories.length ? '#6366f1' : '#1e293b', color: hidden.size === allCategories.length ? 'white' : '#64748b' }}>
+              None
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {allCategories.map((cat) => {
+              const isHidden = hidden.has(cat.name)
+              return (
+                <button
+                  key={cat.name}
+                  onClick={() => toggleCategory(cat.name)}
+                  className="px-2.5 py-1 rounded-full text-xs font-medium transition-all active:scale-95"
+                  style={{
+                    backgroundColor: isHidden ? '#1e293b' : cat.color + '22',
+                    color: isHidden ? '#475569' : cat.color,
+                    border: `1px solid ${isHidden ? '#334155' : cat.color + '44'}`,
+                    opacity: isHidden ? 0.5 : 1,
+                    textDecoration: isHidden ? 'line-through' : 'none',
+                  }}
+                >
+                  {cat.icon} {cat.name}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 

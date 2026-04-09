@@ -53,17 +53,17 @@ export default function Timeline() {
   return (
     <div className="px-4 py-5">
       {/* Date nav */}
-      <div className="flex items-center justify-between mb-5">
-        <button onClick={prevDay} className="p-2 rounded-lg hover:bg-white/5 active:bg-white/10">
+      <div className="flex items-center mb-5">
+        <button onClick={prevDay} className="w-10 h-10 shrink-0 flex items-center justify-center rounded-lg hover:bg-white/5 active:bg-white/10">
           <ChevronLeft size={20} color="#94a3b8" />
         </button>
-        <div className="text-center">
+        <div className="flex-1 text-center">
           <div className="text-base font-semibold">{formatDateShort(date)}</div>
           <div className="text-xs mt-0.5" style={{ color: '#64748b' }}>
             {activities.length} activities · {formatDuration(totalMs)}
           </div>
         </div>
-        <button onClick={nextDay} className="p-2 rounded-lg hover:bg-white/5 active:bg-white/10" disabled={isToday}>
+        <button onClick={nextDay} className="w-10 h-10 shrink-0 flex items-center justify-center rounded-lg hover:bg-white/5 active:bg-white/10" disabled={isToday}>
           <ChevronRight size={20} color={isToday ? '#334155' : '#94a3b8'} />
         </button>
       </div>
