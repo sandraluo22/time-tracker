@@ -1,11 +1,19 @@
 import { useState, useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, getCategoryColor, CATEGORIES } from '../db'
+import { db, CATEGORIES } from '../db'
 import { formatDuration } from '../hooks'
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer
 } from 'recharts'
+
+// Generate a consistent color from a string
+function stringToColor(str: string): string {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash)
+  const h = Math.abs(hash) % 360
+  return `hsl(${h}, 55%, 55%)`
+}
 
 type Range = 'today' | 'week' | 'month' | 'year'
 
@@ -45,7 +53,7 @@ export default function Dashboard() {
     if (!activities) return []
     const seen = new Set<string>()
     for (const a of activities) if (a.endTime) seen.add(a.category)
-    return CATEGORIES.filter(c => seen.has(c.name))
+    return CATEGORIES.filter(c => seen.has(c.name) && c.name !== 'Other')
   }, [activities])
 
   const categoryData = useMemo(() => {
@@ -53,15 +61,20 @@ export default function Dashboard() {
     const map = new Map<string, number>()
     for (const a of activities) {
       if (!a.endTime || hidden.has(a.category)) continue
-      map.set(a.category, (map.get(a.category) ?? 0) + (a.endTime - a.startTime))
+      // For "Other" category, use the label as the group name
+      const key = a.category === 'Other' ? a.label : a.category
+      map.set(key, (map.get(key) ?? 0) + (a.endTime - a.startTime))
     }
     return Array.from(map.entries())
-      .map(([name, value]) => ({
-        name,
-        value,
-        color: getCategoryColor(name),
-        icon: CATEGORIES.find(c => c.name === name)?.icon ?? '📌',
-      }))
+      .map(([name, value]) => {
+        const cat = CATEGORIES.find(c => c.name === name)
+        return {
+          name,
+          value,
+          color: cat?.color ?? stringToColor(name),
+          icon: cat?.icon ?? '📌',
+        }
+      })
       .sort((a, b) => b.value - a.value)
   }, [activities, hidden])
 
@@ -78,8 +91,9 @@ export default function Dashboard() {
     for (const a of activities) {
       if (!a.endTime || hidden.has(a.category)) continue
       const key = getKey(new Date(a.startTime))
+      const groupKey = a.category === 'Other' ? a.label : a.category
       if (!map.has(key)) map.set(key, new Map())
-      map.get(key)!.set(a.category, (map.get(key)!.get(a.category) ?? 0) + (a.endTime - a.startTime))
+      map.get(key)!.set(groupKey, (map.get(key)!.get(groupKey) ?? 0) + (a.endTime - a.startTime))
     }
     return Array.from(map.entries()).map(([period, catMap]) => {
       const row: Record<string, string | number> = { period }
@@ -219,7 +233,7 @@ export default function Dashboard() {
                   <YAxis tick={{ fill: '#64748b', fontSize: 9 }} axisLine={false} tickLine={false} width={30} />
                   <Tooltip content={<CustomTooltip />} />
                   {uniqueCategories.map((cat) => (
-                    <Bar key={cat} dataKey={cat} stackId="a" fill={getCategoryColor(cat)} radius={[2, 2, 0, 0]} />
+                    <Bar key={cat} dataKey={cat} stackId="a" fill={categoryData.find(d => d.name === cat)?.color ?? stringToColor(cat)} radius={[2, 2, 0, 0]} />
                   ))}
                 </BarChart>
               </ResponsiveContainer>
