@@ -75,7 +75,7 @@ export async function getRunningActivity(): Promise<Activity | undefined> {
 
 export async function updateActivity(
   id: string,
-  updates: Partial<Pick<Activity, 'label' | 'category' | 'startTime' | 'endTime'>>
+  updates: Partial<Pick<Activity, 'label' | 'description' | 'category' | 'startTime' | 'endTime'>>
 ): Promise<void> {
   await db.activities.update(id, { ...updates, updatedAt: Date.now(), synced: false })
   triggerAutoSync()

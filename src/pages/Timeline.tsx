@@ -11,36 +11,40 @@ export default function Timeline() {
   const [date, setDate] = useState(new Date())
   const activities = useActivitiesForDay(date)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState({ label: '', category: '', startTime: '', endTime: '' })
+  const [editForm, setEditForm] = useState({ label: '', description: '', category: '', startTime: '', endTime: '' })
   const [view, setView] = useState<'cards' | 'list'>('cards')
 
   const prevDay = () => { const d = new Date(date); d.setDate(d.getDate() - 1); setDate(d) }
   const nextDay = () => { const d = new Date(date); d.setDate(d.getDate() + 1); setDate(d) }
   const isToday = date.toDateString() === new Date().toDateString()
 
+  const toLocalDatetime = (ts: number) => {
+    const d = new Date(ts)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`
+  }
+
   const startEdit = (a: typeof activities[0]) => {
     setEditingId(a.id!)
     setEditForm({
       label: a.label,
+      description: a.description || '',
       category: a.category,
-      startTime: new Date(a.startTime).toTimeString().slice(0, 5),
-      endTime: a.endTime ? new Date(a.endTime).toTimeString().slice(0, 5) : '',
+      startTime: toLocalDatetime(a.startTime),
+      endTime: a.endTime ? toLocalDatetime(a.endTime) : '',
     })
   }
 
   const saveEdit = async (id: string) => {
-    const base = new Date(date)
-    const [sh, sm] = editForm.startTime.split(':').map(Number)
-    base.setHours(sh, sm, 0, 0)
-    const startTime = base.getTime()
+    const startTime = new Date(editForm.startTime).getTime()
     let endTime: number | null = null
-    if (editForm.endTime) {
-      const end = new Date(date)
-      const [eh, em] = editForm.endTime.split(':').map(Number)
-      end.setHours(eh, em, 0, 0)
-      endTime = end.getTime()
-    }
-    await updateActivity(id, { label: editForm.label, category: editForm.category, startTime, endTime })
+    if (editForm.endTime) endTime = new Date(editForm.endTime).getTime()
+    await updateActivity(id, {
+      label: editForm.label,
+      description: editForm.description || undefined,
+      category: editForm.category,
+      startTime,
+      endTime,
+    })
     setEditingId(null)
   }
 
@@ -133,17 +137,22 @@ export default function Timeline() {
               {editingId === a.id ? (
                 <div className="space-y-2">
                   <input value={editForm.label} onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
-                    className="w-full bg-transparent border-b border-white/10 text-white outline-none pb-1 text-sm" />
+                    placeholder="Label" className="w-full bg-transparent border-b border-white/10 text-white outline-none pb-1 text-sm" />
+                  <input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    placeholder="Description (optional)" className="w-full bg-transparent border-b border-white/10 text-white outline-none pb-1 text-xs" style={{ color: '#94a3b8' }} />
                   <select value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
                     className="text-sm rounded px-2 py-1 text-white outline-none" style={{ backgroundColor: '#334155' }}>
                     {CATEGORIES.map((c) => <option key={c.name} value={c.name}>{c.icon} {c.name}</option>)}
                   </select>
-                  <div className="flex gap-2 items-center text-sm">
-                    <input type="time" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
-                      className="rounded px-2 py-1 text-white outline-none" style={{ backgroundColor: '#334155' }} />
-                    <span style={{ color: '#475569' }}>→</span>
-                    <input type="time" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
-                      className="rounded px-2 py-1 text-white outline-none" style={{ backgroundColor: '#334155' }} />
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase tracking-wide" style={{ color: '#64748b' }}>Start</label>
+                    <input type="datetime-local" step="1" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                      className="w-full rounded px-2 py-1 text-sm text-white outline-none" style={{ backgroundColor: '#334155' }} />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] uppercase tracking-wide" style={{ color: '#64748b' }}>End</label>
+                    <input type="datetime-local" step="1" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                      className="w-full rounded px-2 py-1 text-sm text-white outline-none" style={{ backgroundColor: '#334155' }} />
                   </div>
                   <div className="flex gap-2 justify-end">
                     <button onClick={() => saveEdit(a.id!)} className="p-1.5 rounded bg-green-600 active:bg-green-700"><Check size={14} /></button>
