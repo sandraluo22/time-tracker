@@ -121,13 +121,14 @@ export function subscribeToRealtime() {
       'postgres_changes',
       { event: '*', schema: 'public', table: 'activities' },
       async (payload) => {
-        const row = payload.new as Record<string, any>
-        if (!row || !row.id) return
-
         if (payload.eventType === 'DELETE') {
-          await db.activities.delete((payload.old as any).id)
+          const old = payload.old as Record<string, any>
+          if (old?.id) await db.activities.delete(old.id)
           return
         }
+
+        const row = payload.new as Record<string, any>
+        if (!row || !row.id) return
 
         // INSERT or UPDATE — apply if newer than local
         const local = await db.activities.get(row.id)
@@ -140,7 +141,6 @@ export function subscribeToRealtime() {
             startTime: row.start_time,
             endTime: row.end_time,
             updatedAt: row.updated_at,
-  
             synced: true,
           })
         }
