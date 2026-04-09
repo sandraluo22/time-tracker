@@ -29,7 +29,7 @@ export default function App() {
         <div className="safe-top shrink-0" style={{ backgroundColor: '#0f172a' }} />
 
         <div className="page-scroll">
-          <div style={{ maxWidth: 672, margin: '0 auto', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ width: '100%', maxWidth: 672, margin: '0 auto', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
             <Routes>
               <Route path="/" element={<Timer />} />
               <Route path="/timeline" element={<Timeline />} />

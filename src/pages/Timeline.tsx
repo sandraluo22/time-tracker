@@ -51,7 +51,7 @@ export default function Timeline() {
   const totalMs = activities.reduce((sum, a) => a.endTime ? sum + (a.endTime - a.startTime) : sum, 0)
 
   return (
-    <div style={{ padding: '20px 16px', overflow: 'hidden' }}>
+    <div style={{ padding: '20px 16px', overflow: 'hidden', width: '100%', maxWidth: '100%' }}>
       {/* Date nav */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, maxWidth: '100%' }}>
         <button onClick={prevDay}
