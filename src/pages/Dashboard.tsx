@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db, CATEGORIES } from '../db'
-import { formatDuration } from '../hooks'
+import { db, CATEGORIES, getCategoryColor, updateActivity, deleteActivity } from '../db'
+import { formatDuration, formatTime } from '../hooks'
+import { Pencil, Trash2, Check, X } from 'lucide-react'
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer
@@ -20,6 +21,8 @@ type Range = 'today' | 'week' | 'month' | 'year'
 export default function Dashboard() {
   const [range, setRange] = useState<Range>('week')
   const [hidden, setHidden] = useState<Set<string>>(new Set())
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({ label: '', description: '', category: '', startTime: '', endTime: '' })
 
   const toggleCategory = (name: string) => {
     setHidden(prev => {
@@ -101,6 +104,11 @@ export default function Dashboard() {
       return row
     })
   }, [activities, range, hidden])
+
+  const filteredActivities = useMemo(() => {
+    if (!activities) return []
+    return activities.filter((a) => a.endTime && !hidden.has(a.category)).sort((a, b) => b.startTime - a.startTime)
+  }, [activities, hidden])
 
   const totalMs = categoryData.reduce((s, d) => s + d.value, 0)
   const uniqueCategories = categoryData.map((d) => d.name)
@@ -239,6 +247,65 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
           )}
+          {/* Activity list */}
+          <div className="rounded-lg mt-4" style={{ backgroundColor: '#1e293b' }}>
+            <div className="text-xs font-medium px-4 pt-3 pb-2" style={{ color: '#64748b' }}>
+              Activities ({filteredActivities.length})
+            </div>
+            <div className="max-h-80 overflow-y-auto">
+              {filteredActivities.map((a, i) => (
+                <div key={a.id} className="px-4 py-2 flex items-center gap-3" style={{ borderTop: i > 0 ? '1px solid #334155' : undefined }}>
+                  {editingId === a.id ? (
+                    <div className="flex-1 space-y-2">
+                      <input value={editForm.label} onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
+                        className="w-full bg-transparent border-b border-white/10 text-white outline-none pb-1 text-sm" />
+                      <input value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                        placeholder="Description" className="w-full bg-transparent border-b border-white/10 outline-none pb-1 text-xs" style={{ color: '#94a3b8' }} />
+                      <select value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                        className="text-sm rounded px-2 py-1 text-white outline-none" style={{ backgroundColor: '#334155' }}>
+                        {CATEGORIES.map((c) => <option key={c.name} value={c.name}>{c.icon} {c.name}</option>)}
+                      </select>
+                      <div className="space-y-1">
+                        <input type="datetime-local" step="1" value={editForm.startTime} onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                          className="w-full rounded px-2 py-1 text-sm text-white outline-none" style={{ backgroundColor: '#334155' }} />
+                        <input type="datetime-local" step="1" value={editForm.endTime} onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                          className="w-full rounded px-2 py-1 text-sm text-white outline-none" style={{ backgroundColor: '#334155' }} />
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <button onClick={async () => {
+                          const startTime = new Date(editForm.startTime).getTime()
+                          const endTime = editForm.endTime ? new Date(editForm.endTime).getTime() : null
+                          await updateActivity(a.id!, { label: editForm.label, description: editForm.description || undefined, category: editForm.category, startTime, endTime })
+                          setEditingId(null)
+                        }} className="p-1.5 rounded bg-green-600 active:bg-green-700"><Check size={14} /></button>
+                        <button onClick={() => setEditingId(null)} className="p-1.5 rounded" style={{ backgroundColor: '#334155' }}><X size={14} /></button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="w-1 self-stretch rounded-full shrink-0" style={{ backgroundColor: getCategoryColor(a.category) }} />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm truncate">{a.label}</div>
+                        {a.description && <div className="text-xs truncate" style={{ color: '#94a3b8' }}>{a.description}</div>}
+                        <div className="text-[11px]" style={{ color: '#64748b' }}>
+                          {formatTime(a.startTime)} → {a.endTime ? formatTime(a.endTime) : 'now'}
+                          {a.endTime && <span className="ml-1">· {formatDuration(a.endTime - a.startTime)}</span>}
+                        </div>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <button onClick={() => {
+                          const toLocal = (ts: number) => { const d = new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}` }
+                          setEditingId(a.id!)
+                          setEditForm({ label: a.label, description: a.description || '', category: a.category, startTime: toLocal(a.startTime), endTime: a.endTime ? toLocal(a.endTime) : '' })
+                        }} className="p-1.5 rounded hover:bg-white/10"><Pencil size={13} color="#64748b" /></button>
+                        <button onClick={() => deleteActivity(a.id!)} className="p-1.5 rounded hover:bg-white/10"><Trash2 size={13} color="#ef4444" /></button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
         </>
       )}
     </div>
