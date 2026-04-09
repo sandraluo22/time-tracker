@@ -29,7 +29,7 @@ export default function App() {
         <div className="safe-top shrink-0" style={{ backgroundColor: '#0f172a' }} />
 
         <div className="page-scroll">
-          <div className="max-w-2xl mx-auto flex flex-col min-h-full">
+          <div style={{ maxWidth: 672, margin: '0 auto', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
             <Routes>
               <Route path="/" element={<Timer />} />
               <Route path="/timeline" element={<Timeline />} />
@@ -46,7 +46,7 @@ export default function App() {
             paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
           }}
         >
-          <div className="max-w-2xl mx-auto flex justify-around items-center pt-2">
+          <div style={{ maxWidth: 672, margin: '0 auto', display: 'flex', justifyContent: 'space-around', alignItems: 'center', paddingTop: 8 }}>
             {navItems.map(({ to, icon: Icon, label }) => (
               <NavLink
                 key={to}
