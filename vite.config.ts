@@ -32,13 +32,31 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Don't cache anything — always fetch fresh from network
-        globPatterns: [],
-        runtimeCaching: [],
-        navigateFallback: null,
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
+        // Cache app shell for offline, but always try network first
+        globPatterns: ['**/*.{html,js,css,ico,png,svg}'],
+        runtimeCaching: [
+          {
+            // All same-origin requests: network first, fall back to cache
+            urlPattern: ({ sameOrigin }) => sameOrigin,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'app-cache',
+              expiration: { maxEntries: 50, maxAgeSeconds: 86400 },
+              networkTimeoutSeconds: 3,
+            },
+          },
+          {
+            urlPattern: /^https:\/\/.*supabase.*$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'supabase-cache',
+              expiration: { maxEntries: 50, maxAgeSeconds: 86400 },
+            },
+          },
+        ],
       },
     }),
   ],
