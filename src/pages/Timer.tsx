@@ -7,7 +7,7 @@ export default function Timer() {
   const running = useRunningActivity()
   const elapsed = useElapsed(running?.startTime ?? null)
   const [label, setLabel] = useState('')
-  const [category, setCategory] = useState('Sleep')
+  const [category, setCategory] = useState('Other')
 
   const handleStart = async () => {
     await startActivity(label.trim() || category, category)
