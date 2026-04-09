@@ -110,9 +110,14 @@ export async function importFromLegacy(
   let errors = 0
   const now = Date.now()
 
+  // Detect delimiter: if first line has tabs, use tabs; otherwise parse as CSV
+  const isTabSeparated = lines[0].includes('\t')
+
   // Skip header row
   for (let i = 1; i < lines.length; i++) {
-    const fields = lines[i].split('\t').map((f) => f.trim())
+    const fields = isTabSeparated
+      ? lines[i].split('\t').map((f) => f.trim())
+      : parseCSVLine(lines[i])
     if (fields.length < 2) { skipped++; continue }
 
     try {
